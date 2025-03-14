@@ -3,6 +3,7 @@ import { User } from "@/database/schema/user";
 import {
 	Column,
 	Entity,
+	JoinColumn,
 	ManyToOne,
 	OneToOne,
 	PrimaryGeneratedColumn,
@@ -39,7 +40,8 @@ class Expense {
 	)
 	user: User;
 
-	@OneToOne(() => Category)
+	@OneToOne(() => Category, { nullable: true })
+	@JoinColumn()
 	category: Category;
 }
 

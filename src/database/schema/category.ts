@@ -1,4 +1,16 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import {
+	Column,
+	Entity,
+	JoinColumn,
+	OneToOne,
+	PrimaryGeneratedColumn,
+} from "typeorm";
+import { User } from "./user";
+
+enum CategoryType {
+	SYSTEM = "system",
+	USER = "user",
+}
 
 @Entity()
 class Category {
@@ -10,6 +22,27 @@ class Category {
 
 	@Column({ type: "varchar", name: "description", length: 255, nullable: true })
 	description: string;
+
+	@Column({ type: "enum", enum: CategoryType, name: "type" })
+	type: CategoryType;
+
+	@OneToOne(() => User, { nullable: true, cascade: true })
+	@JoinColumn()
+	user: User;
+
+	@Column({
+		type: "timestamp",
+		name: "created_at",
+		default: () => "CURRENT_TIMESTAMP",
+	})
+	createdAt: Date;
+
+	@Column({
+		type: "timestamp",
+		name: "updated_at",
+		default: () => "CURRENT_TIMESTAMP",
+	})
+	updatedAt: Date;
 }
 
-export { Category };
+export { Category, CategoryType };

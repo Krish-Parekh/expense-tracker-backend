@@ -1,3 +1,5 @@
+import { Category } from "@/database/schema/category";
+import { Expense } from "@/database/schema/expense";
 import { User } from "@/database/schema/user";
 import Logger from "@/utils/logger";
 import { DataSource } from "typeorm";
@@ -9,7 +11,7 @@ const PostgresDataSource = new DataSource({
 	username: process.env.POSTGRES_USER,
 	password: process.env.POSTGRES_PASSWORD,
 	database: process.env.POSTGRES_DB,
-	entities: [User],
+	entities: [User, Expense, Category],
 	synchronize: true,
 	logging: true,
 });

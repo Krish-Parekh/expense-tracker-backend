@@ -1,5 +1,11 @@
 import { Expense } from "@/database/schema/expense";
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import {
+	Column,
+	Entity,
+	OneToMany,
+	OneToOne,
+	PrimaryGeneratedColumn,
+} from "typeorm";
 
 enum UserRole {
 	ADMIN = "admin",
