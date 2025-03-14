@@ -1,6 +1,8 @@
 import { connectDatabase } from "@/database/";
 import authRouter from "@/routes/auth.routes";
+import categoryRouter from "@/routes/category.routes";
 import healthRouter from "@/routes/health.routes";
+import userRouter from "@/routes/user.routes";
 import Logger from "@/utils/logger";
 import dotenv from "dotenv";
 import express from "express";
@@ -11,8 +13,11 @@ const app = express();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
 app.use(`${process.env.API_V1_PREFIX}`, healthRouter);
 app.use(`${process.env.API_V1_PREFIX}/auth`, authRouter);
+app.use(`${process.env.API_V1_PREFIX}/users`, userRouter);
+app.use(`${process.env.API_V1_PREFIX}/categories`, categoryRouter);
 
 const PORT = process.env.PORT || 3000;
 

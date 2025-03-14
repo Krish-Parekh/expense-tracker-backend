@@ -152,7 +152,8 @@ const getCategories = async (req: Request, res: Response) => {
 			res.status(400).json(ApiResponse.error(null, message, 400));
 			return;
 		}
-		const { userId, searchQuery } = parsedData.data;
+		const { searchQuery } = parsedData.data;
+		const userId = req.user.id;
 		Logger.info(`Get categories request for user: ${userId}`);
 		const categories = await PostgresDataSource.manager.find(Category, {
 			where: [
