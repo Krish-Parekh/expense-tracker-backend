@@ -10,7 +10,6 @@ import { z } from "zod";
 const categorySchema = z.object({
 	name: z.string().min(3).max(30),
 	description: z.string().min(3).max(255),
-	userId: z.string().uuid(),
 });
 
 const updateCategorySchema = z.object({
@@ -20,7 +19,6 @@ const updateCategorySchema = z.object({
 
 const deleteCategorySchema = z.object({
 	id: z.string().uuid(),
-	userId: z.string().uuid(),
 });
 
 const getCategoriesSchema = z.object({
@@ -40,7 +38,8 @@ const addCategory = async (req: Request, res: Response) => {
 			res.status(400).json(ApiResponse.error(null, message, 400));
 			return;
 		}
-		const { name, description, userId } = parsedData.data;
+		const { name, description } = parsedData.data;
+		const userId = req.user.id;
 		Logger.info(`Add category request for name: ${name} by user: ${userId}`);
 		const newCategory = PostgresDataSource.manager.create(Category, {
 			name,
@@ -72,7 +71,8 @@ const updateCategory = async (req: Request, res: Response) => {
 			res.status(400).json(ApiResponse.error(null, message, 400));
 			return;
 		}
-		const { id, name, description, userId } = parsedData.data;
+		const { id, name, description } = parsedData.data;
+		const userId = req.user.id;
 		Logger.info(`Update category request for id: ${id} by user: ${userId}`);
 		const category = await PostgresDataSource.manager.findOneBy(Category, {
 			id,
@@ -113,7 +113,8 @@ const deleteCategory = async (req: Request, res: Response) => {
 			return;
 		}
 
-		const { id, userId } = parsedData.data;
+		const { id } = parsedData.data;
+		const userId = req.user.id;
 		Logger.info(`Delete category request for id: ${id} by user: ${userId}`);
 
 		const category = await PostgresDataSource.manager.findOneBy(Category, {
