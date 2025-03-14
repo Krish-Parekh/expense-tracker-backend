@@ -1,5 +1,6 @@
 import { PostgresDataSource } from "@/database";
 import { User } from "@/database/schema/user";
+import ApiResponse from "@/types/response";
 import bcrypt from "bcrypt";
 import type { Request, Response } from "express";
 import jwt from "jsonwebtoken";
@@ -17,11 +18,16 @@ const signupSchema = z.object({
 	password: z.string().min(3).max(255),
 });
 
+const COOKIE_TOKEN_NAME = "token";
+
 const login = async (request: Request, response: Response) => {
 	try {
 		const parsedData = loginSchema.safeParse(request.body);
 		if (!parsedData.success) {
-			response.status(400).json({ error: parsedData.error.errors });
+			const message = parsedData.error.errors
+				.map((error) => error.message)
+				.join(", ");
+			response.status(400).json(ApiResponse.error(null, message, 400));
 			return;
 		}
 
@@ -31,20 +37,31 @@ const login = async (request: Request, response: Response) => {
 		});
 
 		if (!user) {
-			response.status(404).json({ error: "User not found" });
+			response.status(404).json(ApiResponse.error(null, "User not found", 404));
 			return;
 		}
 
 		const isValidPassword = await bcrypt.compare(password, user.password);
 		if (!isValidPassword) {
-			response.status(401).json({ error: "Invalid password" });
+			response
+				.status(401)
+				.json(ApiResponse.error(null, "Invalid password", 401));
 			return;
 		}
 
 		const token = jwt.sign({ id: user.id }, "SECRET", { expiresIn: "1h" });
-		response.status(200).json({ token });
+		response
+			.status(200)
+			.cookie(COOKIE_TOKEN_NAME, token, {
+				httpOnly: true,
+				secure: process.env.NODE_ENV === "production",
+				expires: new Date(Date.now() + 3600000),
+			})
+			.json(ApiResponse.success(null, "Login successful"));
 	} catch (error) {
-		response.status(500).json({ error: "Internal server error" });
+		response
+			.status(500)
+			.json(ApiResponse.error(null, "Internal server error", 500));
 	}
 };
 
@@ -52,7 +69,10 @@ const signup = async (request: Request, response: Response) => {
 	try {
 		const parsedData = signupSchema.safeParse(request.body);
 		if (!parsedData.success) {
-			response.status(400).json({ error: parsedData.error.errors });
+			const message = parsedData.error.errors
+				.map((error) => error.message)
+				.join(", ");
+			response.status(400).json(ApiResponse.error(null, message, 400));
 			return;
 		}
 
@@ -62,7 +82,9 @@ const signup = async (request: Request, response: Response) => {
 		});
 
 		if (existingUser) {
-			response.status(409).json({ error: "User already exists" });
+			response
+				.status(409)
+				.json(ApiResponse.error(null, "User already exists", 409));
 			return;
 		}
 
@@ -75,9 +97,13 @@ const signup = async (request: Request, response: Response) => {
 		});
 
 		await PostgresDataSource.manager.save(newUser);
-		response.status(201).json({ message: "User created" });
+		response
+			.status(201)
+			.json(ApiResponse.success(null, "User created successfully"));
 	} catch (error) {
-		response.status(500).json({ error: "Internal server error" });
+		response
+			.status(500)
+			.json(ApiResponse.error(null, "Internal server error", 500));
 	}
 };
 
