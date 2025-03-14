@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Expense } from "@/database/schema/expense";
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
 enum UserRole {
 	ADMIN = "admin",
@@ -43,6 +44,15 @@ class User {
 		default: () => "CURRENT_TIMESTAMP",
 	})
 	updatedAt: Date;
+
+	@OneToMany(
+		() => Expense,
+		(expense: Expense) => expense.user,
+		{
+			cascade: true,
+		},
+	)
+	expenses: Expense[];
 }
 
 export { User, UserRole };
