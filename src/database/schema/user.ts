@@ -29,6 +29,20 @@ class User {
 		default: UserRole.USER,
 	})
 	role: UserRole;
+
+	@Column({
+		type: "timestamp",
+		name: "created_at",
+		default: () => "CURRENT_TIMESTAMP",
+	})
+	createdAt: Date;
+
+	@Column({
+		type: "timestamp",
+		name: "updated_at",
+		default: () => "CURRENT_TIMESTAMP",
+	})
+	updatedAt: Date;
 }
 
 export { User, UserRole };
